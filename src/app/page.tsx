@@ -11,6 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState('')
   const [error, setError] = useState('')
+  const [editingTodo, setEditingTodo] = useState<string | null>(null)
 
   //loadTodos()を作成する（GET）
   const loadTodos = async() => {
@@ -83,6 +84,32 @@ export default function Home() {
       console.log(e)
     }
   }
+
+  //Todo完了・未完了関数を作成する
+  const toggleCompleted = async(id: string, checked: boolean) => {
+    setError('')
+    setEditingTodo(id)
+    try {
+      const response = await fetch('/api/todos/' + id, { 
+        method: 'PATCH', 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ completed: checked })
+      })
+      const result = await response.json()
+
+      if (result.ok === true) {
+        await loadTodos()
+      } else {
+        setError(result.message)
+        return
+      }
+    } catch(e) {
+      setError('更新に失敗しました')
+      console.log(e)
+    } finally {
+      setEditingTodo(null)
+    }
+  }
  
   return (
     <>
@@ -94,7 +121,7 @@ export default function Home() {
           ? <li>まだTodoがありません</li>
           : todos.map((todo) => (
              <li key={todo.id}>
-               {todo.title}
+               <input type="checkbox" disabled={editingTodo === todo.id} checked={todo.completed} onChange={(e) => toggleCompleted(todo.id, e.target.checked)} />{todo.title}
                <button onClick={() => deleteTodo(todo.id)}>削除</button>
              </li>
           ))}
