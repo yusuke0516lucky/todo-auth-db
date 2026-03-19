@@ -12,9 +12,9 @@
 - Shipped: （今週できたこと3つ）
 - Blockers: （詰まったこと1つ）
 - Next focus: （来週の焦点1つ）
+
 ## 2026-03-11
 ### Output
-- （今日“動いた/増えた”もの。URL/画面/エンドポイント/コマンド結果）
 - 「User」「Todo」でテーブル設計を定義
 - DB作成
     ・SQLiteのDBファイル(dev.db)を作成し、schema.prisma(テーブル定義)をもとに、実際の　テーブルをDB内に作成。
@@ -38,3 +38,20 @@
 - UI作成(フロントエンド)
 
 
+## 2026-03-17
+### Output
+- 最低限のUI作成（Homeコンポーネント/addメソッド/一覧表示）
+- state設計（todos(配列)/title(inputの値)/loading(取得中か否か)/error）
+- fetchでAPIを叩いて表示する
+- DELETE機能のAPIを追加（バックエンド）
+
+### Key learning
+- useState()の初期値がundefinedだとmapできない
+    → useState<Todo[]>([])のように、配列初期化+型付けが必須
+- URLパラメータの受け取り方（動的ルート）
+    ・[id]などを使う場合、第二引数のcontextでparamsを受け取る
+    ・{params} : {params: {id: string}}
+- catch(error)のerrorはTypeScript的にはundefined扱い
+    ・型チェックが必要
+### Next
+- DELETE機能のフロントエンド作成

@@ -11,6 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState('')
   const [error, setError] = useState('')
+
   //loadTodos()を作成する（GET）
   const loadTodos = async() => {
     setLoading(true);
@@ -63,6 +64,25 @@ export default function Home() {
     void loadTodos();
   }, [])
   
+  //削除用関数を作成する
+  const deleteTodo = async(id: string) => {
+    setError('') //エラーをクリアする
+    try {
+      const response = await fetch('/api/todos/' + id, { method: 'DELETE' })
+      const result = await response.json()
+
+      if (result.ok === true) {
+        //削除が完了したらTodoを再取得する
+        await loadTodos()
+      } else {
+        setError(result.message)
+        return
+      }
+    } catch(e) {
+      setError('削除に失敗しました')
+      console.log(e)
+    }
+  }
  
   return (
     <>
@@ -75,6 +95,7 @@ export default function Home() {
           : todos.map((todo) => (
              <li key={todo.id}>
                {todo.title}
+               <button onClick={() => deleteTodo(todo.id)}>削除</button>
              </li>
           ))}
         </ul>
