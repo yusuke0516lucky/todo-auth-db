@@ -53,6 +53,7 @@ export async function PATCH(
         const updatedData = await prisma.todo.update({ where: { id }, data: { completed } })
         return Response.json({ ok: true, data: updatedData }, { status: 200 })
     } catch(error) {
+        console.log(error)
         if (hasStringCode(error) && error.code === 'P2025') {
             return Response.json({ ok: false, message: "Todo not found" }, { status: 404 })
         }
