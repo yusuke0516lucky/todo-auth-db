@@ -1,15 +1,18 @@
- import { PrismaClient } from '@prisma/client'
-  import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
-  import Database from 'better-sqlite3'
+import { PrismaClient } from '@prisma/client'
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 
-  const adapter = new PrismaBetterSqlite3({ url: '/Users/takigawayusuke/dev/todo-auth-db/dev.db' })
+const dbUrl = process.env.DATABASE_URL ?? 'file:./dev.db'
+// PrismaのSQLite URL: "file:./dev.db" → adapter用: "./dev.db"
+const sqlitePath = dbUrl.startsWith('file:') ? dbUrl.slice('file:'.length) : dbUrl
 
-  const globalForPrisma = globalThis as unknown as {
-      prisma: PrismaClient | undefined
-  }
+const adapter = new PrismaBetterSqlite3({ url: sqlitePath })
 
-  export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
 
-  if (process.env.NODE_ENV !== 'production') {
-      globalForPrisma.prisma = prisma
-  }
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
