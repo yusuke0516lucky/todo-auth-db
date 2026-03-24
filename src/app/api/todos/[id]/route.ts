@@ -32,8 +32,10 @@ export async function DELETE(
 }
 
 const updatedTodoSchema = z.object({
-    completed: z.boolean()
-}).strict()
+    completed: z.boolean(),
+    title: z.string().trim().min(1)
+}).partial().refine((data) => data.completed !== undefined || data.title !== undefined,
+{ message: "Either title or completed is required" }) //更新時、completedかtitleのどちらかは必須。
 
 export async function PATCH(
     request: Request,
@@ -49,9 +51,17 @@ export async function PATCH(
         if (!updatedTodo.success) {
             return Response.json({ ok: false, message: "Invalid request body"}, { status: 400 } )
         }
-        const completed = updatedTodo.data.completed;
-        const updatedData = await prisma.todo.update({ where: { id }, data: { completed } })
+        const data: { completed?: boolean; title?: string } = {} //更新用データを格納する空のdataオブジェクト
+        if (updatedTodo.data.completed !== undefined) {
+            data.completed = updatedTodo.data.completed; //完了・未完了
+        }
+        if (updatedTodo.data.title !== undefined) {
+            data.title = updatedTodo.data.title; //Todo名
+        }
+        const updatedData = await prisma.todo.update({ where: { id }, data })
         return Response.json({ ok: true, data: updatedData }, { status: 200 })
+        
+        
     } catch(error) {
         console.log(error)
         if (hasStringCode(error) && error.code === 'P2025') {
