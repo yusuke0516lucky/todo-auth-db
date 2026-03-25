@@ -55,3 +55,47 @@
     ・型チェックが必要
 ### Next
 - DELETE機能のフロントエンド作成
+
+## 2026-03-19
+### Output
+- Todoの完了・未完了API(PATCH)の実装（バックエンド）
+    ・zodで{ completed: boolean }を検証(SafeParse)
+- Todoの完了・未完了フロントエンド実装(チェックボックス)
+    ・toggleCompletedメソッドの実装
+- 連打防止機能実装
+    ・更新中の状態管理(state)の実装
+    ・checkboxにdisabled={editingTodo === todo.id}を付与
+
+### Key learning
+- fetch関数の書き方
+    ・第一引数(URL)
+    ・第二引数
+        method: (POST|GET|PUT|DELETE)などのリクエストメソッドを文字列で設定
+        (初期値はGET)
+        headers: { "Content-Type": "application/json" }←JSONをサーバに送信する際
+        body: JSON.stringify(obj)←JSONをサーバに送信する際
+- devサーバ稼働中にdev.dbを置換/復元/移動してはいけない
+
+### Next
+- 編集(タイトル更新)機能の実装
+
+
+## 2026-03-24
+### Output
+- タイトル編集機能(PATCH拡張)追加
+    ・zodスキーマ設計：optional(completedとtitle) + "どちらか必須"
+- タイトル編集機能UI
+    ・updateTitle関数作成
+    ・state設計(editingId/editTitle)
+
+### Key learning
+- zodの関数
+    ・「.partial()」でoptionalにする
+    ・「.refine(...)」で条件を追加する(どちらか必須)
+- dataの組み立て
+    ・更新時にcompleted(Todo実行/未実行)とtitleの同時更新時、
+      空のdataオブジェクトを作成し、プロパティに格納することで、
+      1度のupdateで更新できる。
+
+### Next
+- UI整理(component分割など)

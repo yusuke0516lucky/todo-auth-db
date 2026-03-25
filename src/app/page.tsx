@@ -1,5 +1,6 @@
 'use client'; //クライアント側のコンポーネント
 import {useEffect, useState} from 'react'
+import TodoItem from '@/components/TodoItem';
 //Todoの型定義
 type Todo = {
   id: string;
@@ -153,57 +154,26 @@ export default function Home() {
           {todos.length === 0 
           ? <li>まだTodoがありません</li>
           : todos.map((todo) => (
-             <li key={todo.id}>
-              {editingId === todo.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    disabled={updatingId === todo.id}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                  />
-                  <button
-                  disabled={updatingId === todo.id}
-                  onClick={() => updateTitle(todo.id, editTitle)}
-                  >
-                    保存
-                  </button>
-                  <button
-                  disabled={updatingId === todo.id}
-                  onClick={() => {
-                    setEditingId(null)
-                    setEditTitle('')
-                  }}
-                  >
-                    キャンセル
-                  </button>
-                </>
-              ) : (
-                <>
-                  <input 
-                    type="checkbox" 
-                    disabled={isEditing || updatingId === todo.id} 
-                    checked={todo.completed} 
-                    onChange={(e) => toggleCompleted(todo.id, e.target.checked)} 
-                    />{todo.title}
-                  <button
-                    disabled={isEditing || updatingId === todo.id}
-                    onClick={() => {
-                      setEditingId(todo.id)
-                      setEditTitle(todo.title)
-                    }}
-                  >
-                    編集
-                  </button>
-                  <button 
-                    disabled={isEditing || updatingId === todo.id}
-                    onClick={() => deleteTodo(todo.id)}
-                  >
-                    削除
-                  </button>
-                </>
-              )}
-             </li>
+             <TodoItem 
+                key={todo.id}
+                todo={todo}
+                editTitle={editTitle}
+                isCurrentItemEditing={editingId === todo.id}
+                isAnotherItemEditing={editingId !== null && editingId !== todo.id}
+                isUpdating={updatingId === todo.id}
+                onEditTitleChange={(val) => setEditTitle(val)}
+                onCancelEdit={() => {
+                  setEditingId(null)
+                  setEditTitle("")
+                }}
+                onToggleComplete={(checked) => toggleCompleted(todo.id, checked)}
+                onStartEdit={() => {
+                  setEditingId(todo.id)
+                  setEditTitle(todo.title)
+                }}
+                onSaveEdit={() => updateTitle(todo.id, editTitle)}
+                onDelete={() => deleteTodo(todo.id)}
+             />
           ))}
         </ul>
       }
