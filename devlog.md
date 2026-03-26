@@ -99,3 +99,19 @@
 
 ### Next
 - UI整理(component分割など)
+
+
+## 2026-3-25
+### Output
+- （今日“動いた/増えた”もの。URL/画面/エンドポイント/コマンド結果）
+- TodoItemへの切り出し(UI)
+    ・Todo1件分の表示部品として分割
+    ・props設計
+
+### Key learning
+- disabled制御の棲み分け
+    ・isCurrentItemEditing/isAnotherItemEditing/isUpdating
+- props設計
+
+### Next
+- TodoList/TodoInputへの分割
