@@ -1,6 +1,7 @@
 "use client"; //クライアント側のコンポーネント
 import { useEffect, useState } from "react";
 import TodoList from "@/components/TodoList";
+import TodoInput from "@/components/TodoInput";
 //Todoの型定義
 type Todo = {
   id: string;
@@ -168,15 +169,14 @@ export default function Home() {
           onDelete={deleteTodo}
         />
       )}
-      <input
-        type="text"
-        value={title}
-        disabled={isEditing}
-        onChange={(e) => setTitle(e.target.value)}
+      <TodoInput
+        title={title}
+        isDisabled={isEditing}
+        onTitleChange={(value) => {
+          setTitle(value);
+        }}
+        onAdd={addTodo}
       />
-      <button onClick={addTodo} disabled={isEditing}>
-        追加
-      </button>
       {error ? <p>{error}</p> : <p></p>}
     </>
   );
