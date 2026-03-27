@@ -2,12 +2,8 @@
 import { useEffect, useState } from "react";
 import TodoList from "@/components/TodoList";
 import TodoInput from "@/components/TodoInput";
-//Todoの型定義
-type Todo = {
-  id: string;
-  title: string;
-  completed: boolean;
-};
+import type { Todo } from "@/types/todo";
+
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);

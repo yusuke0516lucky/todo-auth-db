@@ -1,8 +1,4 @@
-type Todo = {
-  id: string;
-  title: string;
-  completed: boolean;
-};
+import type { Todo } from "@/types/todo";
 
 interface TodoItemProps {
   todo: Todo;
