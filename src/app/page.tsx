@@ -28,7 +28,7 @@ export default function Home() {
         setError(result.message);
       }
     } catch (error) {
-      setError("取得に失敗しました");
+      setError("Todo取得失敗");
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export default function Home() {
     setError("");
     try {
       if (title.trim().length === 0) {
-        setError("空文字です");
+        setError("文字を入力してください");
         return;
       }
       const response = await fetch("/api/todos", {
@@ -55,7 +55,7 @@ export default function Home() {
         setError(result.message);
       }
     } catch (error) {
-      setError("送信に失敗しました。");
+      setError("Todo追加失敗");
       console.log(error);
     }
   };
@@ -80,7 +80,7 @@ export default function Home() {
         return;
       }
     } catch (e) {
-      setError("削除に失敗しました");
+      setError("Todo削除失敗");
       console.log(e);
     }
   };
@@ -104,7 +104,7 @@ export default function Home() {
         return;
       }
     } catch (e) {
-      setError("更新に失敗しました");
+      setError("Todo更新失敗");
       console.log(e);
     } finally {
       setUpdatingId(null);
@@ -117,7 +117,7 @@ export default function Home() {
     setUpdatingId(id); //2重送信防止
     try {
       if (newTitle.trim().length === 0) {
-        setError("空文字です");
+        setError("文字を入力してください");
         return;
       }
       const response = await fetch("/api/todos/" + id, {
@@ -134,7 +134,7 @@ export default function Home() {
         setError(result.message);
       }
     } catch (e) {
-      setError("更新に失敗しました");
+      setError("Todo更新失敗");
       console.log(e);
     } finally {
       setUpdatingId(null);
@@ -173,8 +173,10 @@ export default function Home() {
           setTitle(value);
         }}
         onAdd={addTodo}
+        showEmptyTitleMessage={!isEditing && title.trim().length === 0}
+        showEditingMessage={isEditing}
       />
-      {error ? <p>{error}</p> : <p></p>}
+      {error && <p>{error}</p>}
     </>
   );
 }

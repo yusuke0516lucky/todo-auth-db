@@ -39,6 +39,7 @@ export default function TodoItem({
             disabled={isUpdating}
             onChange={(e) => onEditTitleChange(e.target.value)}
           />
+          {isSaveDisabled && <p>1文字以上入力すると保存できます</p>}
           <button disabled={isUpdating || isSaveDisabled} onClick={onSaveEdit}>
             保存
           </button>
