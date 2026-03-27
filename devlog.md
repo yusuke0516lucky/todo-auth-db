@@ -160,3 +160,30 @@
 ### Next
 
 - TodoInput作成
+
+## 2026-03-27
+
+### Output
+
+- TodoInput.tsxの作成・切り分け
+- Todo型の最適化
+  ・Todo型を共通ファイル(todo.ts)へ切り出し
+- Todo新規作成と編集保存のUIバリデーションを改善
+  ・TodoInputのpropsを分割(isInputDisabled/isAddDisabled)
+  ・TodoItemにisUpdatingとisSaveDisabledを分けて持たせる
+- 入力補助メッセージとエラーメッセージの表示を改善
+  ・エラー時の文言を修正
+  ・空欄の時はそもそもボタンを押せないようにした
+  ・disabledにするだけでは不親切であるため、補助分を追加
+
+### Key learning
+
+- booleanに意味を詰め込みすぎてはいけない
+  ・isDisabled={isEditing || title.trim().length === 0}
+  ・inputとbuttonに共通のisDisabledを使ったことにより、空文字の時そもそも入力できない状態になってしまった。
+  ・isInputDisabledとisAddDisabledに役割分担した。
+
+### Next
+
+- 入力の文字数制限
+- UIの改善
