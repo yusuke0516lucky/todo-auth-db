@@ -167,7 +167,8 @@ export default function Home() {
       )}
       <TodoInput
         title={title}
-        isDisabled={isEditing}
+        isInputDisabled={isEditing}
+        isAddDisabled={isEditing || title.trim().length === 0}
         onTitleChange={(value) => {
           setTitle(value);
         }}

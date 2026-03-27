@@ -1,12 +1,14 @@
 interface TodoInputProps {
   title: string;
-  isDisabled: boolean;
+  isInputDisabled: boolean;
+  isAddDisabled: boolean;
   onTitleChange: (value: string) => void;
   onAdd: () => void;
 }
 export default function TodoInput({
   title,
-  isDisabled,
+  isInputDisabled,
+  isAddDisabled,
   onTitleChange,
   onAdd,
 }: TodoInputProps) {
@@ -15,10 +17,10 @@ export default function TodoInput({
       <input
         type="text"
         value={title}
-        disabled={isDisabled}
+        disabled={isInputDisabled}
         onChange={(e) => onTitleChange(e.target.value)}
       />
-      <button onClick={onAdd} disabled={isDisabled}>
+      <button onClick={onAdd} disabled={isAddDisabled}>
         追加
       </button>
     </>

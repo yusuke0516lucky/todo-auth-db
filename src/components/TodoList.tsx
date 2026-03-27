@@ -39,6 +39,7 @@ export default function TodoList({
             isCurrentItemEditing={editingId === todo.id}
             isAnotherItemEditing={editingId !== null && editingId !== todo.id}
             isUpdating={updatingId === todo.id}
+            isSaveDisabled={editTitle.trim().length === 0}
             onEditTitleChange={onEditTitleChange}
             onCancelEdit={onCancelEdit}
             onToggleComplete={(checked) => onToggleComplete(todo.id, checked)}
