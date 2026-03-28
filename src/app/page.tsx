@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import TodoList from "@/components/TodoList";
 import TodoInput from "@/components/TodoInput";
 import type { Todo } from "@/types/todo";
+import { TODOS_MAX_LENGTH } from "@/constants/validation";
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -40,6 +41,9 @@ export default function Home() {
     try {
       if (title.trim().length === 0) {
         setError("文字を入力してください");
+        return;
+      } else if (title.trim().length > TODOS_MAX_LENGTH) {
+        setError("30文字以内で入力してください");
         return;
       }
       const response = await fetch("/api/todos", {
@@ -119,6 +123,9 @@ export default function Home() {
       if (newTitle.trim().length === 0) {
         setError("文字を入力してください");
         return;
+      } else if (newTitle.trim().length > TODOS_MAX_LENGTH) {
+        setError("30文字以内で入力してください");
+        return;
       }
       const response = await fetch("/api/todos/" + id, {
         method: "PATCH",
@@ -168,13 +175,20 @@ export default function Home() {
       <TodoInput
         title={title}
         isInputDisabled={isEditing}
-        isAddDisabled={isEditing || title.trim().length === 0}
+        isAddDisabled={
+          isEditing ||
+          title.trim().length === 0 ||
+          title.trim().length > TODOS_MAX_LENGTH
+        }
         onTitleChange={(value) => {
           setTitle(value);
         }}
         onAdd={addTodo}
         showEmptyTitleMessage={!isEditing && title.trim().length === 0}
         showEditingMessage={isEditing}
+        showTooLongTitleMessage={
+          !isEditing && title.trim().length > TODOS_MAX_LENGTH
+        }
       />
       {error && <p>{error}</p>}
     </>

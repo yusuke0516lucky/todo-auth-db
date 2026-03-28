@@ -1,5 +1,6 @@
 import TodoItem from "./TodoItem";
 import type { Todo } from "@/types/todo";
+import { TODOS_MAX_LENGTH } from "@/constants/validation";
 
 interface TodoListProps {
   todos: Todo[];
@@ -39,13 +40,20 @@ export default function TodoList({
             isCurrentItemEditing={editingId === todo.id}
             isAnotherItemEditing={editingId !== null && editingId !== todo.id}
             isUpdating={updatingId === todo.id}
-            isSaveDisabled={editTitle.trim().length === 0}
+            isSaveDisabled={
+              editTitle.trim().length === 0 ||
+              editTitle.trim().length > TODOS_MAX_LENGTH
+            }
             onEditTitleChange={onEditTitleChange}
             onCancelEdit={onCancelEdit}
             onToggleComplete={(checked) => onToggleComplete(todo.id, checked)}
             onStartEdit={() => onStartEdit(todo.id, todo.title)}
             onSaveEdit={() => onSaveEdit(todo.id, editTitle)}
             onDelete={() => onDelete(todo.id)}
+            showTooLongSaveTitleMessage={
+              editTitle.trim().length > TODOS_MAX_LENGTH
+            }
+            showEmptyEditTitleMessage={editTitle.trim().length === 0}
           />
         ))
       )}

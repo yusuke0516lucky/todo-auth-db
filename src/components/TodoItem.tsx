@@ -1,5 +1,4 @@
 import type { Todo } from "@/types/todo";
-
 interface TodoItemProps {
   todo: Todo;
   editTitle: string;
@@ -7,6 +6,8 @@ interface TodoItemProps {
   isAnotherItemEditing: boolean; //他のitemが編集中かどうか
   isUpdating: boolean; //更新中かどうか(2重送信防止)
   isSaveDisabled: boolean;
+  showTooLongSaveTitleMessage: boolean; //文字数制限時に出力する補助文用
+  showEmptyEditTitleMessage: boolean; //0文字以下の時に出力する補助分用
   onEditTitleChange: (value: string) => void;
   onCancelEdit: () => void;
   onToggleComplete: (checked: boolean) => void;
@@ -22,6 +23,8 @@ export default function TodoItem({
   isAnotherItemEditing,
   isUpdating,
   isSaveDisabled,
+  showTooLongSaveTitleMessage,
+  showEmptyEditTitleMessage,
   onEditTitleChange,
   onCancelEdit,
   onToggleComplete,
@@ -39,7 +42,8 @@ export default function TodoItem({
             disabled={isUpdating}
             onChange={(e) => onEditTitleChange(e.target.value)}
           />
-          {isSaveDisabled && <p>1文字以上入力すると保存できます</p>}
+          {showTooLongSaveTitleMessage && <p>30文字以内で入力してください</p>}
+          {showEmptyEditTitleMessage && <p>1文字以上入力すると保存できます</p>}
           <button disabled={isUpdating || isSaveDisabled} onClick={onSaveEdit}>
             保存
           </button>

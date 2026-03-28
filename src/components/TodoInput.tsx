@@ -1,9 +1,10 @@
 interface TodoInputProps {
   title: string;
-  isInputDisabled: boolean;
-  isAddDisabled: boolean;
+  isInputDisabled: boolean; //編集中
+  isAddDisabled: boolean; //編集中+1文字未満
   showEmptyTitleMessage: boolean;
   showEditingMessage: boolean;
+  showTooLongTitleMessage: boolean;
   onTitleChange: (value: string) => void;
   onAdd: () => void;
 }
@@ -13,6 +14,7 @@ export default function TodoInput({
   isAddDisabled,
   showEmptyTitleMessage,
   showEditingMessage,
+  showTooLongTitleMessage,
   onTitleChange,
   onAdd,
 }: TodoInputProps) {
@@ -25,6 +27,7 @@ export default function TodoInput({
         disabled={isInputDisabled}
         onChange={(e) => onTitleChange(e.target.value)}
       />
+      {showTooLongTitleMessage && <p>30文字以内で入力してください</p>}
       {showEmptyTitleMessage && <p>1文字以上入力すると追加できます</p>}
       <button onClick={onAdd} disabled={isAddDisabled}>
         追加
