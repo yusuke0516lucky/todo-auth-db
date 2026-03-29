@@ -190,7 +190,9 @@ export default function Home() {
           !isEditing && title.trim().length > TODOS_MAX_LENGTH
         }
       />
-      {error && <p>{error}</p>}
+      {error && (
+        <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">{`⚠️ ${error}`}</p>
+      )}
     </>
   );
 }

@@ -28,7 +28,7 @@ export default function TodoList({
   onDelete,
 }: TodoListProps) {
   return (
-    <ul>
+    <ul className="flex flex-col gap-1">
       {todos.length === 0 ? (
         <li>まだTodoがありません</li>
       ) : (
