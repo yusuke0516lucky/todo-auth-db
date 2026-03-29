@@ -12,12 +12,6 @@
 
 - （次にやることを1つ）
 
-### Weekly summary (YYYY-MM-DD - YYYY-MM-DD)
-
-- Shipped: （今週できたこと3つ）
-- Blockers: （詰まったこと1つ）
-- Next focus: （来週の焦点1つ）
-
 ## 2026-03-11
 
 ### Output
@@ -203,3 +197,18 @@
 ### Next
 
 - UI改善
+
+## 2026-03-29
+
+### Output
+
+- 最低限のUI改善(TodoList/TodoItem/TodoInput/page.tsx)
+
+### Key learning
+
+- UIの役目：装飾ではなく情報設計
+  ・状態を伝える、操作の重要度を伝える、押せる/押せないを伝える
+
+### Next
+
+- フィルタ機能・検索機能
