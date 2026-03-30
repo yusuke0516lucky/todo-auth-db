@@ -6,6 +6,7 @@ import type { Todo } from "@/types/todo";
 import { TODOS_MAX_LENGTH } from "@/constants/validation";
 
 export default function Home() {
+  type FilterStatus = "all" | "active" | "completed";
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -13,8 +14,29 @@ export default function Home() {
   const [updatingId, setUpdatingId] = useState<string | null>(null); //2重送信防止用(通信中のTodo)State
   const [editingId, setEditingId] = useState<string | null>(null); //編集中State
   const [editTitle, setEditTitle] = useState<string>(""); //編集中の値
+  const [filter, setFilter] = useState<FilterStatus>("all"); //フィルター用state
 
-  const isEditing = editingId !== null;
+  const isEditing: boolean = editingId !== null;
+  const SELECTED_CLASS_STYLE =
+    "px-3 py-1 rounded-md border border-blue-600 bg-blue-600 text-sm text-white";
+  const UNSELECTED_CLASS_STYLE =
+    "px-3 py-1 rounded-md border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50";
+  //件数表示する変数
+  const all = todos.length;
+  const active = todos.filter((todo) => todo.completed === false).length;
+  const completed = todos.filter((todo) => todo.completed === true).length;
+
+  const filteredTodos = (todos: Todo[], filter: FilterStatus): Todo[] => {
+    if (filter === "all") {
+      return todos;
+    } else if (filter === "active") {
+      return todos.filter((todo) => todo.completed === false);
+    } else {
+      return todos.filter((todo) => todo.completed === true);
+    }
+  };
+
+  const displayTodos: Todo[] = filteredTodos(todos, filter); //表示用Todo
 
   //loadTodos()を作成する（GET）
   const loadTodos = async () => {
@@ -153,24 +175,56 @@ export default function Home() {
       {loading ? (
         <p>Loading</p>
       ) : (
-        <TodoList
-          todos={todos}
-          editTitle={editTitle}
-          editingId={editingId}
-          updatingId={updatingId}
-          onEditTitleChange={setEditTitle}
-          onCancelEdit={() => {
-            setEditingId(null);
-            setEditTitle("");
-          }}
-          onToggleComplete={toggleCompleted}
-          onStartEdit={(id, title) => {
-            setEditingId(id);
-            setEditTitle(title);
-          }}
-          onSaveEdit={updateTitle}
-          onDelete={deleteTodo}
-        />
+        <>
+          <div className="flex gap-2">
+            <button
+              className={
+                filter === "all" ? SELECTED_CLASS_STYLE : UNSELECTED_CLASS_STYLE
+              }
+              onClick={() => setFilter("all")}
+            >
+              {`全件(${all})`}
+            </button>
+            <button
+              className={
+                filter === "active"
+                  ? SELECTED_CLASS_STYLE
+                  : UNSELECTED_CLASS_STYLE
+              }
+              onClick={() => setFilter("active")}
+            >
+              {`未完了(${active})`}
+            </button>
+            <button
+              className={
+                filter === "completed"
+                  ? SELECTED_CLASS_STYLE
+                  : UNSELECTED_CLASS_STYLE
+              }
+              onClick={() => setFilter("completed")}
+            >
+              {`完了済み(${completed})`}
+            </button>
+          </div>
+          <TodoList
+            todos={displayTodos}
+            editTitle={editTitle}
+            editingId={editingId}
+            updatingId={updatingId}
+            onEditTitleChange={setEditTitle}
+            onCancelEdit={() => {
+              setEditingId(null);
+              setEditTitle("");
+            }}
+            onToggleComplete={toggleCompleted}
+            onStartEdit={(id, title) => {
+              setEditingId(id);
+              setEditTitle(title);
+            }}
+            onSaveEdit={updateTitle}
+            onDelete={deleteTodo}
+          />
+        </>
       )}
       <TodoInput
         title={title}
