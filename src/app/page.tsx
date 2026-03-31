@@ -15,6 +15,7 @@ export default function Home() {
   const [editingId, setEditingId] = useState<string | null>(null); //編集中State
   const [editTitle, setEditTitle] = useState<string>(""); //編集中の値
   const [filter, setFilter] = useState<FilterStatus>("all"); //フィルター用state
+  const [searchKeyword, setSearchKeyword] = useState<string>(""); //検索用state
 
   const isEditing: boolean = editingId !== null;
   const SELECTED_CLASS_STYLE =
@@ -37,6 +38,13 @@ export default function Home() {
   };
 
   const displayTodos: Todo[] = filteredTodos(todos, filter); //表示用Todo
+
+  const searchTodo = (displayTodos: Todo[], value: string): Todo[] => {
+    const searchedTodo: Todo[] = displayTodos.filter((todo) => {
+      return todo.title.includes(value);
+    });
+    return searchedTodo;
+  };
 
   //loadTodos()を作成する（GET）
   const loadTodos = async () => {
@@ -206,8 +214,17 @@ export default function Home() {
               {`完了済み(${completed})`}
             </button>
           </div>
+          <div>
+            <input
+              placeholder="絞り込み"
+              type="text"
+              className="flex-1 border border-gray-300 rounded-md px-2 py-1 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+            />
+          </div>
           <TodoList
-            todos={displayTodos}
+            todos={searchTodo(displayTodos, searchKeyword)}
             editTitle={editTitle}
             editingId={editingId}
             updatingId={updatingId}
