@@ -7,6 +7,7 @@ import { TODOS_MAX_LENGTH } from "@/constants/validation";
 
 export default function Home() {
   type FilterStatus = "all" | "active" | "completed";
+  type SortStatus = "asc" | "desc";
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -16,6 +17,7 @@ export default function Home() {
   const [editTitle, setEditTitle] = useState<string>(""); //編集中の値
   const [filter, setFilter] = useState<FilterStatus>("all"); //フィルター用state
   const [searchKeyword, setSearchKeyword] = useState<string>(""); //検索用state
+  const [sortOrder, setSortOrder] = useState<SortStatus>("asc"); //ソート用state(順方向/逆方向)
 
   const isEditing: boolean = editingId !== null;
   const SELECTED_CLASS_STYLE =
@@ -27,6 +29,7 @@ export default function Home() {
   const active = todos.filter((todo) => todo.completed === false).length;
   const completed = todos.filter((todo) => todo.completed === true).length;
 
+  //フィルターメソッド
   const filteredTodos = (todos: Todo[], filter: FilterStatus): Todo[] => {
     if (filter === "all") {
       return todos;
@@ -39,11 +42,22 @@ export default function Home() {
 
   const displayTodos: Todo[] = filteredTodos(todos, filter); //表示用Todo
 
+  //検索メソッド
   const searchTodo = (displayTodos: Todo[], value: string): Todo[] => {
     const searchedTodo: Todo[] = displayTodos.filter((todo) => {
       return todo.title.includes(value);
     });
     return searchedTodo;
+  };
+
+  //ソートメソッド　※createdAtをTodoに持たせていないため、一旦順方向・逆方向でソートする
+  const sortTodo = (displayTodos: Todo[], sortOrder: SortStatus): Todo[] => {
+    const copiedDisplayTodos = [...displayTodos];
+    if (sortOrder === "asc") {
+      return copiedDisplayTodos; //順方向
+    } else {
+      return copiedDisplayTodos.reverse(); //逆順
+    }
   };
 
   //loadTodos()を作成する（GET）
@@ -213,6 +227,26 @@ export default function Home() {
             >
               {`完了済み(${completed})`}
             </button>
+            <button
+              onClick={() => setSortOrder("asc")}
+              className={
+                sortOrder === "asc"
+                  ? "border-b-2 border-blue-500 font-bold"
+                  : "text-gray-500"
+              }
+            >
+              昇順
+            </button>
+            <button
+              onClick={() => setSortOrder("desc")}
+              className={
+                sortOrder === "desc"
+                  ? "border-b-2 border-blue-500 font-bold"
+                  : "text-gray-500"
+              }
+            >
+              降順
+            </button>
           </div>
           <div>
             <input
@@ -224,7 +258,7 @@ export default function Home() {
             />
           </div>
           <TodoList
-            todos={searchTodo(displayTodos, searchKeyword)}
+            todos={sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder)}
             editTitle={editTitle}
             editingId={editingId}
             updatingId={updatingId}
