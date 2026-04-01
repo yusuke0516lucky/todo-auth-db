@@ -192,6 +192,26 @@ export default function Home() {
     }
   };
 
+  let emptyMessage = "";
+  if (todos.length === 0) {
+    emptyMessage = "まだTodoがありません";
+  } else if (
+    searchKeyword.trim().length > 0 &&
+    sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder).length === 0
+  ) {
+    emptyMessage = "検索結果は0件です";
+  } else if (
+    filter === "active" &&
+    sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder).length === 0
+  ) {
+    emptyMessage = "未完了のTodoはありません";
+  } else if (
+    filter === "completed" &&
+    sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder).length === 0
+  ) {
+    emptyMessage = "完了済みのTodoはありません";
+  }
+
   return (
     <>
       {loading ? (
@@ -259,6 +279,7 @@ export default function Home() {
           </div>
           <TodoList
             todos={sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder)}
+            emptyMessage={emptyMessage}
             editTitle={editTitle}
             editingId={editingId}
             updatingId={updatingId}

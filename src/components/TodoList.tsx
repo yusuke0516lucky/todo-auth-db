@@ -4,6 +4,7 @@ import { TODOS_MAX_LENGTH } from "@/constants/validation";
 
 interface TodoListProps {
   todos: Todo[];
+  emptyMessage: string;
   editTitle: string;
   editingId: string | null;
   updatingId: string | null;
@@ -17,6 +18,7 @@ interface TodoListProps {
 
 export default function TodoList({
   todos,
+  emptyMessage,
   editTitle,
   editingId,
   updatingId,
@@ -30,7 +32,7 @@ export default function TodoList({
   return (
     <ul className="flex flex-col gap-1">
       {todos.length === 0 ? (
-        <li>まだTodoがありません</li>
+        <li>{emptyMessage}</li>
       ) : (
         todos.map((todo) => (
           <TodoItem
