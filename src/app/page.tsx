@@ -215,7 +215,9 @@ export default function Home() {
   return (
     <>
       {loading ? (
-        <p>Loading</p>
+        <p className="mt-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+          Todoを読み込み中...
+        </p>
       ) : (
         <>
           <div className="flex gap-2">
