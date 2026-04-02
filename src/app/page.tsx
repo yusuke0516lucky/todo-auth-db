@@ -18,6 +18,7 @@ export default function Home() {
   const [filter, setFilter] = useState<FilterStatus>("all"); //フィルター用state
   const [searchKeyword, setSearchKeyword] = useState<string>(""); //検索用state
   const [sortOrder, setSortOrder] = useState<SortStatus>("asc"); //ソート用state(順方向/逆方向)
+  const [success, setSuccess] = useState(""); //成功時コメント用state
 
   const isEditing: boolean = editingId !== null;
   const SELECTED_CLASS_STYLE =
@@ -81,6 +82,7 @@ export default function Home() {
 
   //addTodo()を作成する（POST）
   const addTodo = async () => {
+    setSuccess("");
     setError("");
     try {
       if (title.trim().length === 0) {
@@ -98,6 +100,7 @@ export default function Home() {
       const result = await response.json();
       if (result.ok === true) {
         setTitle("");
+        setSuccess("Todo追加成功");
         await loadTodos();
       } else {
         setError(result.message);
@@ -108,6 +111,15 @@ export default function Home() {
     }
   };
 
+  //成功時メッセージを3秒後に消す
+  useEffect(() => {
+    if (!success) return;
+    let timer = setTimeout(() => {
+      setSuccess("");
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [success]);
+
   //初回読み込み時にloadTodos()を実行
   useEffect(() => {
     void loadTodos();
@@ -116,11 +128,13 @@ export default function Home() {
   //削除用関数を作成する
   const deleteTodo = async (id: string) => {
     setError(""); //エラーをクリアする
+    setSuccess("");
     try {
       const response = await fetch("/api/todos/" + id, { method: "DELETE" });
       const result = await response.json();
 
       if (result.ok === true) {
+        setSuccess("Todo削除成功");
         //削除が完了したらTodoを再取得する
         await loadTodos();
       } else {
@@ -136,6 +150,7 @@ export default function Home() {
   //Todo完了・未完了関数
   const toggleCompleted = async (id: string, checked: boolean) => {
     setError("");
+    setSuccess("");
     setUpdatingId(id);
     try {
       const response = await fetch("/api/todos/" + id, {
@@ -146,6 +161,7 @@ export default function Home() {
       const result = await response.json();
 
       if (result.ok === true) {
+        setSuccess("完了/未完了切り替え成功");
         await loadTodos();
       } else {
         setError(result.message);
@@ -162,6 +178,7 @@ export default function Home() {
   //タイトル更新関数
   const updateTitle = async (id: string, newTitle: string) => {
     setError("");
+    setSuccess("");
     setUpdatingId(id); //2重送信防止
     try {
       if (newTitle.trim().length === 0) {
@@ -180,6 +197,7 @@ export default function Home() {
       if (result.ok === true) {
         setEditingId(null);
         setEditTitle("");
+        setSuccess("Todo更新成功");
         await loadTodos();
       } else {
         setError(result.message);
@@ -318,8 +336,17 @@ export default function Home() {
           !isEditing && title.trim().length > TODOS_MAX_LENGTH
         }
       />
-      {error && (
-        <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">{`⚠️ ${error}`}</p>
+
+      {error ? (
+        <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">
+          {`⚠️ ${error}`}
+        </p>
+      ) : (
+        success && (
+          <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+            {success}
+          </p>
+        )
       )}
     </>
   );
