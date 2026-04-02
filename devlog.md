@@ -272,3 +272,24 @@
 ### Next
 
 - ローディング表示の改善
+
+## 2026-04-02
+
+### Output
+
+- ローディング表示改善
+- 成功後メッセージの追加
+  ・stateの追加(sucess)
+  ・addTodo/deleteTodo/updateTitle/toggleCompletedの4つに追加
+
+### Key learning
+
+- sucessとerrorの競合に対する考え方
+  ・画面上でerrorを優先表示するように実装
+- setTimeoutの使い方
+  ・古いタイマーをcleanupする
+  ・ if(!sucess) return; を入れることで、成功メッセージがある時だけタイマーを動かす
+
+### Next
+
+- API呼び出し部分の整理
