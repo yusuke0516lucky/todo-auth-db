@@ -293,3 +293,28 @@
 ### Next
 
 - API呼び出し部分の整理
+
+## 2026-04-04
+
+### Output
+
+- API呼び出し部分の整理
+  ・fetchをpage.tsxから排除し、todoApi.tsに集約
+  ・API関数は「通信のみ」を担当（成功→return/失敗→throw）
+  ・page.tsxは「状態更新とUI制御」に専念
+- エラーハンドリング統一
+  ・catch(error)の処理をhandleErrorに集約
+  ・error instanceOf Errorで安全にメッセージ取得
+  ・バリデーションエラーはUI側(page.tsx)で整理
+- 状態の整理
+  ・stateと派生データを明確に分離
+  ・filtered → searched → sorted　のデータフローを構築
+
+### Key learning
+
+- stateは最小限にし、表示は派生データで構築する設計が重要
+
+### Next
+
+- ロジックの分離
+- 型の整理
