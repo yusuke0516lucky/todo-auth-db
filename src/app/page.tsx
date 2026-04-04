@@ -4,6 +4,13 @@ import TodoList from "@/components/TodoList";
 import TodoInput from "@/components/TodoInput";
 import type { Todo } from "@/types/todo";
 import { TODOS_MAX_LENGTH } from "@/constants/validation";
+import {
+  loadTodoApi,
+  addTodoApi,
+  deleteTodoApi,
+  updateTitleApi,
+  toggleCompletedApi,
+} from "@/lib/todoApi";
 
 export default function Home() {
   type FilterStatus = "all" | "active" | "completed";
@@ -65,16 +72,14 @@ export default function Home() {
   const loadTodos = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/todos");
-      const result = await response.json();
-      if (result.ok === true) {
-        setTodos(result.data);
-        setError("");
-      } else {
-        setError(result.message);
-      }
+      const response = await loadTodoApi();
+      setTodos(response);
     } catch (error) {
-      setError("Todo取得失敗");
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Todo取得失敗");
+      }
     } finally {
       setLoading(false);
     }
@@ -92,22 +97,16 @@ export default function Home() {
         setError("30文字以内で入力してください");
         return;
       }
-      const response = await fetch("/api/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
-      });
-      const result = await response.json();
-      if (result.ok === true) {
-        setTitle("");
-        setSuccess("Todo追加成功");
-        await loadTodos();
-      } else {
-        setError(result.message);
-      }
+      await addTodoApi(title);
+      setTitle("");
+      setSuccess("Todo追加成功");
+      await loadTodos();
     } catch (error) {
-      setError("Todo追加失敗");
-      console.log(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Todo追加失敗");
+      }
     }
   };
 
@@ -130,20 +129,15 @@ export default function Home() {
     setError(""); //エラーをクリアする
     setSuccess("");
     try {
-      const response = await fetch("/api/todos/" + id, { method: "DELETE" });
-      const result = await response.json();
-
-      if (result.ok === true) {
-        setSuccess("Todo削除成功");
-        //削除が完了したらTodoを再取得する
-        await loadTodos();
+      await deleteTodoApi(id);
+      setSuccess("Todo削除成功");
+      await loadTodos();
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
       } else {
-        setError(result.message);
-        return;
+        setError("Todo削除失敗");
       }
-    } catch (e) {
-      setError("Todo削除失敗");
-      console.log(e);
     }
   };
 
@@ -153,23 +147,15 @@ export default function Home() {
     setSuccess("");
     setUpdatingId(id);
     try {
-      const response = await fetch("/api/todos/" + id, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: checked }),
-      });
-      const result = await response.json();
-
-      if (result.ok === true) {
-        setSuccess("完了/未完了切り替え成功");
-        await loadTodos();
+      await toggleCompletedApi(id, checked);
+      setSuccess("完了/未完了切り替え成功");
+      await loadTodos();
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
       } else {
-        setError(result.message);
-        return;
+        setError("Todo更新失敗");
       }
-    } catch (e) {
-      setError("Todo更新失敗");
-      console.log(e);
     } finally {
       setUpdatingId(null);
     }
@@ -188,28 +174,24 @@ export default function Home() {
         setError("30文字以内で入力してください");
         return;
       }
-      const response = await fetch("/api/todos/" + id, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newTitle }),
-      });
-      const result = await response.json();
-      if (result.ok === true) {
-        setEditingId(null);
-        setEditTitle("");
-        setSuccess("Todo更新成功");
-        await loadTodos();
+      await updateTitleApi(id, newTitle);
+
+      setEditingId(null);
+      setEditTitle("");
+      setSuccess("Todo更新成功");
+      await loadTodos();
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
       } else {
-        setError(result.message);
+        setError("Todo更新失敗");
       }
-    } catch (e) {
-      setError("Todo更新失敗");
-      console.log(e);
     } finally {
       setUpdatingId(null);
     }
   };
 
+  //0件・空表示の分岐
   let emptyMessage = "";
   if (todos.length === 0) {
     emptyMessage = "まだTodoがありません";
