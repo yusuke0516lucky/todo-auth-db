@@ -27,6 +27,15 @@ export default function Home() {
   const [sortOrder, setSortOrder] = useState<SortStatus>("asc"); //ソート用state(順方向/逆方向)
   const [success, setSuccess] = useState(""); //成功時コメント用state
 
+  //エラーメソッド
+  const errorMethod = (error: unknown, fallbackMessage: string) => {
+    if (error instanceof Error) {
+      setError(error.message);
+    } else {
+      setError(fallbackMessage);
+    }
+  };
+
   const isEditing: boolean = editingId !== null;
   const SELECTED_CLASS_STYLE =
     "px-3 py-1 rounded-md border border-blue-600 bg-blue-600 text-sm text-white";
@@ -74,12 +83,9 @@ export default function Home() {
     try {
       const response = await loadTodoApi();
       setTodos(response);
+      setError("");
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Todo取得失敗");
-      }
+      errorMethod(error, "Todo取得失敗");
     } finally {
       setLoading(false);
     }
@@ -102,11 +108,7 @@ export default function Home() {
       setSuccess("Todo追加成功");
       await loadTodos();
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Todo追加失敗");
-      }
+      errorMethod(error, "Todo追加失敗");
     }
   };
 
@@ -126,36 +128,29 @@ export default function Home() {
 
   //削除用関数を作成する
   const deleteTodo = async (id: string) => {
-    setError(""); //エラーをクリアする
     setSuccess("");
+    setError(""); //エラーをクリアする
     try {
       await deleteTodoApi(id);
       setSuccess("Todo削除成功");
       await loadTodos();
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Todo削除失敗");
-      }
+      errorMethod(error, "Todo削除失敗");
     }
   };
 
   //Todo完了・未完了関数
   const toggleCompleted = async (id: string, checked: boolean) => {
-    setError("");
     setSuccess("");
+    setError("");
+
     setUpdatingId(id);
     try {
       await toggleCompletedApi(id, checked);
       setSuccess("完了/未完了切り替え成功");
       await loadTodos();
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Todo更新失敗");
-      }
+      errorMethod(error, "完了/未完了切り替え失敗");
     } finally {
       setUpdatingId(null);
     }
@@ -163,8 +158,9 @@ export default function Home() {
 
   //タイトル更新関数
   const updateTitle = async (id: string, newTitle: string) => {
-    setError("");
     setSuccess("");
+    setError("");
+
     setUpdatingId(id); //2重送信防止
     try {
       if (newTitle.trim().length === 0) {
@@ -181,11 +177,7 @@ export default function Home() {
       setSuccess("Todo更新成功");
       await loadTodos();
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Todo更新失敗");
-      }
+      errorMethod(error, "Todo更新失敗");
     } finally {
       setUpdatingId(null);
     }
