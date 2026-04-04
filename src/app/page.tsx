@@ -28,7 +28,7 @@ export default function Home() {
   const [success, setSuccess] = useState(""); //成功時コメント用state
 
   //エラーメソッド
-  const errorMethod = (error: unknown, fallbackMessage: string) => {
+  const handleError = (error: unknown, fallbackMessage: string) => {
     if (error instanceof Error) {
       setError(error.message);
     } else {
@@ -42,12 +42,12 @@ export default function Home() {
   const UNSELECTED_CLASS_STYLE =
     "px-3 py-1 rounded-md border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50";
   //件数表示する変数
-  const all = todos.length;
-  const active = todos.filter((todo) => todo.completed === false).length;
-  const completed = todos.filter((todo) => todo.completed === true).length;
+  const allCount = todos.length;
+  const activeCount = todos.filter((todo) => todo.completed === false).length;
+  const completedCount = todos.filter((todo) => todo.completed === true).length;
 
   //フィルターメソッド
-  const filteredTodos = (todos: Todo[], filter: FilterStatus): Todo[] => {
+  const filterTodos = (todos: Todo[], filter: FilterStatus): Todo[] => {
     if (filter === "all") {
       return todos;
     } else if (filter === "active") {
@@ -57,25 +57,28 @@ export default function Home() {
     }
   };
 
-  const displayTodos: Todo[] = filteredTodos(todos, filter); //表示用Todo
+  const filteredTodos: Todo[] = filterTodos(todos, filter); //表示用Todo
 
   //検索メソッド
-  const searchTodo = (displayTodos: Todo[], value: string): Todo[] => {
-    const searchedTodo: Todo[] = displayTodos.filter((todo) => {
+  const searchTodos = (todos: Todo[], value: string): Todo[] => {
+    const searchedTodo: Todo[] = todos.filter((todo) => {
       return todo.title.includes(value);
     });
     return searchedTodo;
   };
 
   //ソートメソッド　※createdAtをTodoに持たせていないため、一旦順方向・逆方向でソートする
-  const sortTodo = (displayTodos: Todo[], sortOrder: SortStatus): Todo[] => {
-    const copiedDisplayTodos = [...displayTodos];
+  const sortTodos = (todos: Todo[], sortOrder: SortStatus): Todo[] => {
+    const copiedTodos = [...todos];
     if (sortOrder === "asc") {
-      return copiedDisplayTodos; //順方向
+      return copiedTodos; //順方向
     } else {
-      return copiedDisplayTodos.reverse(); //逆順
+      return copiedTodos.reverse(); //逆順
     }
   };
+
+  const searchedTodos = searchTodos(filteredTodos, searchKeyword);
+  const sortedTodos = sortTodos(searchedTodos, sortOrder);
 
   //loadTodos()を作成する（GET）
   const loadTodos = async () => {
@@ -85,7 +88,7 @@ export default function Home() {
       setTodos(response);
       setError("");
     } catch (error) {
-      errorMethod(error, "Todo取得失敗");
+      handleError(error, "Todo取得失敗");
     } finally {
       setLoading(false);
     }
@@ -108,7 +111,7 @@ export default function Home() {
       setSuccess("Todo追加成功");
       await loadTodos();
     } catch (error) {
-      errorMethod(error, "Todo追加失敗");
+      handleError(error, "Todo追加失敗");
     }
   };
 
@@ -135,7 +138,7 @@ export default function Home() {
       setSuccess("Todo削除成功");
       await loadTodos();
     } catch (error) {
-      errorMethod(error, "Todo削除失敗");
+      handleError(error, "Todo削除失敗");
     }
   };
 
@@ -150,7 +153,7 @@ export default function Home() {
       setSuccess("完了/未完了切り替え成功");
       await loadTodos();
     } catch (error) {
-      errorMethod(error, "完了/未完了切り替え失敗");
+      handleError(error, "完了/未完了切り替え失敗");
     } finally {
       setUpdatingId(null);
     }
@@ -177,7 +180,7 @@ export default function Home() {
       setSuccess("Todo更新成功");
       await loadTodos();
     } catch (error) {
-      errorMethod(error, "Todo更新失敗");
+      handleError(error, "Todo更新失敗");
     } finally {
       setUpdatingId(null);
     }
@@ -187,20 +190,11 @@ export default function Home() {
   let emptyMessage = "";
   if (todos.length === 0) {
     emptyMessage = "まだTodoがありません";
-  } else if (
-    searchKeyword.trim().length > 0 &&
-    sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder).length === 0
-  ) {
+  } else if (searchKeyword.trim().length > 0 && sortedTodos.length === 0) {
     emptyMessage = "検索結果は0件です";
-  } else if (
-    filter === "active" &&
-    sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder).length === 0
-  ) {
+  } else if (filter === "active" && sortedTodos.length === 0) {
     emptyMessage = "未完了のTodoはありません";
-  } else if (
-    filter === "completed" &&
-    sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder).length === 0
-  ) {
+  } else if (filter === "completed" && sortedTodos.length === 0) {
     emptyMessage = "完了済みのTodoはありません";
   }
 
@@ -219,7 +213,7 @@ export default function Home() {
               }
               onClick={() => setFilter("all")}
             >
-              {`全件(${all})`}
+              {`全件(${allCount})`}
             </button>
             <button
               className={
@@ -229,7 +223,7 @@ export default function Home() {
               }
               onClick={() => setFilter("active")}
             >
-              {`未完了(${active})`}
+              {`未完了(${activeCount})`}
             </button>
             <button
               className={
@@ -239,7 +233,7 @@ export default function Home() {
               }
               onClick={() => setFilter("completed")}
             >
-              {`完了済み(${completed})`}
+              {`完了済み(${completedCount})`}
             </button>
             <button
               onClick={() => setSortOrder("asc")}
@@ -272,7 +266,7 @@ export default function Home() {
             />
           </div>
           <TodoList
-            todos={sortTodo(searchTodo(displayTodos, searchKeyword), sortOrder)}
+            todos={sortedTodos}
             emptyMessage={emptyMessage}
             editTitle={editTitle}
             editingId={editingId}
