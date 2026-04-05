@@ -1,10 +1,10 @@
-import type { Todo } from "@/types/todo";
+import type { Todo, TodoApiResponse } from "@/types/todo";
 
 
 
 export const loadTodoApi = async (): Promise<Todo[]> => {
     const response = await fetch("/api/todos");
-    const result = await response.json();
+    const result: TodoApiResponse<Todo[]> = await response.json();
     if (result.ok === true) {
         return result.data
     } else {
@@ -18,7 +18,7 @@ export const addTodoApi = async (title: string): Promise<void> => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title })
     })
-    const result = await response.json()
+    const result:TodoApiResponse<null> = await response.json()
     if (result.ok === true) {
         return;
     } else {
@@ -30,7 +30,7 @@ export const deleteTodoApi = async (id: string): Promise<void> => {
     const response = await fetch("/api/todos/" + id, {
         method: "DELETE"
     }) 
-    const result = await response.json()
+    const result:TodoApiResponse<null> = await response.json()
 
     if (result.ok === true) {
         return;
@@ -45,7 +45,7 @@ export const updateTitleApi = async (id: string, newTitle: string): Promise<void
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle })
     });
-    const result = await response.json();
+    const result:TodoApiResponse<null> = await response.json();
 
     if (result.ok === true) {
         return;
@@ -61,7 +61,7 @@ export const toggleCompletedApi = async(id :string, checked: boolean): Promise<v
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: checked })
     });
-    const result = await response.json();
+    const result:TodoApiResponse<null> = await response.json();
 
     if (result.ok === true) {
         return;

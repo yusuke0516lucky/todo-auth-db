@@ -12,7 +12,7 @@ export const filterTodos = (todos: Todo[], filter: FilterStatus): Todo[] => {
   };
 //検索メソッド
 export const searchTodos = (todos: Todo[], value: string): Todo[] => {
-      const searchedTodo: Todo[] = todos.filter((todo) => {
+      const searchedTodo = todos.filter((todo) => {
         return todo.title.includes(value);
       });
       return searchedTodo;
