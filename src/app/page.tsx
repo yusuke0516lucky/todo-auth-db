@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import TodoList from "@/components/TodoList";
 import TodoInput from "@/components/TodoInput";
-import type { Todo } from "@/types/todo";
+import type { Todo, FilterStatus, SortStatus } from "@/types/todo";
 import { TODOS_MAX_LENGTH } from "@/constants/validation";
 import {
   loadTodoApi,
@@ -11,10 +11,14 @@ import {
   updateTitleApi,
   toggleCompletedApi,
 } from "@/lib/todoApi";
+import {
+  filterTodos,
+  searchTodos,
+  sortTodos,
+  getEmptyMessage,
+} from "@/lib/todoView";
 
 export default function Home() {
-  type FilterStatus = "all" | "active" | "completed";
-  type SortStatus = "asc" | "desc";
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -46,36 +50,7 @@ export default function Home() {
   const activeCount = todos.filter((todo) => todo.completed === false).length;
   const completedCount = todos.filter((todo) => todo.completed === true).length;
 
-  //フィルターメソッド
-  const filterTodos = (todos: Todo[], filter: FilterStatus): Todo[] => {
-    if (filter === "all") {
-      return todos;
-    } else if (filter === "active") {
-      return todos.filter((todo) => todo.completed === false);
-    } else {
-      return todos.filter((todo) => todo.completed === true);
-    }
-  };
-
   const filteredTodos: Todo[] = filterTodos(todos, filter); //表示用Todo
-
-  //検索メソッド
-  const searchTodos = (todos: Todo[], value: string): Todo[] => {
-    const searchedTodo: Todo[] = todos.filter((todo) => {
-      return todo.title.includes(value);
-    });
-    return searchedTodo;
-  };
-
-  //ソートメソッド　※createdAtをTodoに持たせていないため、一旦順方向・逆方向でソートする
-  const sortTodos = (todos: Todo[], sortOrder: SortStatus): Todo[] => {
-    const copiedTodos = [...todos];
-    if (sortOrder === "asc") {
-      return copiedTodos; //順方向
-    } else {
-      return copiedTodos.reverse(); //逆順
-    }
-  };
 
   const searchedTodos = searchTodos(filteredTodos, searchKeyword);
   const sortedTodos = sortTodos(searchedTodos, sortOrder);
@@ -187,16 +162,12 @@ export default function Home() {
   };
 
   //0件・空表示の分岐
-  let emptyMessage = "";
-  if (todos.length === 0) {
-    emptyMessage = "まだTodoがありません";
-  } else if (searchKeyword.trim().length > 0 && sortedTodos.length === 0) {
-    emptyMessage = "検索結果は0件です";
-  } else if (filter === "active" && sortedTodos.length === 0) {
-    emptyMessage = "未完了のTodoはありません";
-  } else if (filter === "completed" && sortedTodos.length === 0) {
-    emptyMessage = "完了済みのTodoはありません";
-  }
+  const emptyMessage = getEmptyMessage(
+    todos,
+    searchKeyword,
+    sortedTodos,
+    filter,
+  );
 
   return (
     <>
