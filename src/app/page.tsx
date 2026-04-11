@@ -17,6 +17,14 @@ import {
   sortTodos,
   getEmptyMessage,
 } from "@/lib/todoView";
+//firebaseAuthの要素をインポート
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  User,
+} from "firebase/auth";
+import { auth, googleProvider } from "@/lib/firebase";
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -30,6 +38,37 @@ export default function Home() {
   const [searchKeyword, setSearchKeyword] = useState<string>(""); //検索用state
   const [sortOrder, setSortOrder] = useState<SortStatus>("asc"); //ソート用state(順方向/逆方向)
   const [success, setSuccess] = useState(""); //成功時コメント用state
+
+  //認証用state
+  const [user, setUser] = useState<User | null>(null); //ログイン済みかどうかのstate
+  const [loadingAuth, setLoadingAuth] = useState(true); //認証確認中かどうかのstate
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoadingAuth(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error("Googleログイン失敗：", error);
+      setError("Googleログインに失敗しました");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("ログアウト失敗：", error);
+      setError("ログアウトに失敗しました");
+    }
+  };
 
   //エラーメソッド
   const handleError = (error: unknown, fallbackMessage: string) => {
@@ -101,8 +140,12 @@ export default function Home() {
 
   //初回読み込み時にloadTodos()を実行
   useEffect(() => {
+    if (!user) {
+      setTodos([]);
+      return;
+    }
     void loadTodos();
-  }, []);
+  }, [user]);
 
   //削除用関数を作成する
   const deleteTodo = async (id: string) => {
@@ -168,9 +211,52 @@ export default function Home() {
     sortedTodos,
     filter,
   );
+  //認証確認中であれば早期リターンする
+  if (loadingAuth) {
+    return <div>認証状態を確認中...</div>;
+  }
+  //未ログイン状態の場合はログイン画面を出力する(Todoリストを表示しない)
+  if (!user) {
+    return (
+      <div>
+        {error ? (
+          <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">
+            {`⚠️ ${error}`}
+          </p>
+        ) : (
+          <div>
+            <h1>Todoリスト</h1>
+            <p>ログインしてください</p>
+            <button
+              onClick={handleGoogleLogin}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Googleでログイン
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <>
+      <div className="mb-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-gray-800">
+              ログイン中: {user.displayName ?? "ユーザー"}
+            </p>
+            <p className="text-sm text-gray-600">{user.email}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-gray-100"
+          >
+            ログアウト
+          </button>
+        </div>
+      </div>
       {loading ? (
         <p className="mt-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
           Todoを読み込み中...
