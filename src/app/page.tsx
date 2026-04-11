@@ -95,10 +95,10 @@ export default function Home() {
   const sortedTodos = sortTodos(searchedTodos, sortOrder);
 
   //loadTodos()を作成する（GET）
-  const loadTodos = async () => {
+  const loadTodos = async (uid: string) => {
     setLoading(true);
     try {
-      const response = await loadTodoApi();
+      const response = await loadTodoApi(uid);
       setTodos(response);
       setError("");
     } catch (error) {
@@ -112,6 +112,9 @@ export default function Home() {
   const addTodo = async () => {
     setSuccess("");
     setError("");
+    if (!user || !user.email) {
+      return;
+    }
     try {
       if (title.trim().length === 0) {
         setError("文字を入力してください");
@@ -120,10 +123,10 @@ export default function Home() {
         setError("30文字以内で入力してください");
         return;
       }
-      await addTodoApi(title);
+      await addTodoApi(title, user.uid, user.email);
       setTitle("");
       setSuccess("Todo追加成功");
-      await loadTodos();
+      await loadTodos(user.uid);
     } catch (error) {
       handleError(error, "Todo追加失敗");
     }
@@ -144,17 +147,20 @@ export default function Home() {
       setTodos([]);
       return;
     }
-    void loadTodos();
+    void loadTodos(user.uid);
   }, [user]);
 
   //削除用関数を作成する
   const deleteTodo = async (id: string) => {
     setSuccess("");
     setError(""); //エラーをクリアする
+    if (!user) {
+      return;
+    }
     try {
       await deleteTodoApi(id);
       setSuccess("Todo削除成功");
-      await loadTodos();
+      await loadTodos(user.uid);
     } catch (error) {
       handleError(error, "Todo削除失敗");
     }
@@ -164,12 +170,15 @@ export default function Home() {
   const toggleCompleted = async (id: string, checked: boolean) => {
     setSuccess("");
     setError("");
-
+    if (!user) {
+      return;
+    }
     setUpdatingId(id);
+
     try {
       await toggleCompletedApi(id, checked);
       setSuccess("完了/未完了切り替え成功");
-      await loadTodos();
+      await loadTodos(user.uid);
     } catch (error) {
       handleError(error, "完了/未完了切り替え失敗");
     } finally {
@@ -181,8 +190,11 @@ export default function Home() {
   const updateTitle = async (id: string, newTitle: string) => {
     setSuccess("");
     setError("");
-
+    if (!user) {
+      return;
+    }
     setUpdatingId(id); //2重送信防止
+
     try {
       if (newTitle.trim().length === 0) {
         setError("文字を入力してください");
@@ -196,7 +208,7 @@ export default function Home() {
       setEditingId(null);
       setEditTitle("");
       setSuccess("Todo更新成功");
-      await loadTodos();
+      await loadTodos(user.uid);
     } catch (error) {
       handleError(error, "Todo更新失敗");
     } finally {
@@ -219,22 +231,21 @@ export default function Home() {
   if (!user) {
     return (
       <div>
-        {error ? (
+        {error && (
           <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">
             {`⚠️ ${error}`}
           </p>
-        ) : (
-          <div>
-            <h1>Todoリスト</h1>
-            <p>ログインしてください</p>
-            <button
-              onClick={handleGoogleLogin}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Googleでログイン
-            </button>
-          </div>
         )}
+        <div>
+          <h1>Todoリスト</h1>
+          <p>ログインしてください</p>
+          <button
+            onClick={handleGoogleLogin}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Googleでログイン
+          </button>
+        </div>
       </div>
     );
   }
