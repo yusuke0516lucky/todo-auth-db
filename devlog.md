@@ -338,3 +338,35 @@
 ### Next
 
 - ログイン機能（Firebase Auth）
+
+## 2026-04-11
+
+### Output
+
+- Firebase Authの導入
+- 認証状態とUIの制御の連動の実装
+- userごとのTodo管理の実装
+  - User
+    ・id = Firebase uidを使用
+    ・DB側で新規作成しない
+  - Todo
+    ・userIdを持たせる
+    ・User.idとリレーション
+
+### Key learning
+
+- データの流れ
+  - POST(作成)
+    1. フロントで(title, uid, email)を送る
+    2. APIでuidのUserを検索
+    3. なければUserを作成(create)
+    4. userId = uidでTodoを作成
+
+  - GET(取得)
+    1. フロントで(/api/todos?uid=xxx)でリクエスト
+    2. APIでuserId = uidで絞る
+    3. そのユーザーのTodoだけ返す
+
+### Next
+
+- DELETE/PATCHにuserIdチェックをいれる
