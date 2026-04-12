@@ -158,7 +158,7 @@ export default function Home() {
       return;
     }
     try {
-      await deleteTodoApi(id);
+      await deleteTodoApi(id, user.uid);
       setSuccess("Todo削除成功");
       await loadTodos(user.uid);
     } catch (error) {
@@ -176,7 +176,7 @@ export default function Home() {
     setUpdatingId(id);
 
     try {
-      await toggleCompletedApi(id, checked);
+      await toggleCompletedApi(id, checked, user.uid);
       setSuccess("完了/未完了切り替え成功");
       await loadTodos(user.uid);
     } catch (error) {
@@ -203,7 +203,7 @@ export default function Home() {
         setError("30文字以内で入力してください");
         return;
       }
-      await updateTitleApi(id, newTitle);
+      await updateTitleApi(id, newTitle, user.uid);
 
       setEditingId(null);
       setEditTitle("");

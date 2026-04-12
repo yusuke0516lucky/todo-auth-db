@@ -26,8 +26,8 @@ export const addTodoApi = async (title: string, uid: string, email: string): Pro
     }
 }
 
-export const deleteTodoApi = async (id: string): Promise<void> => {
-    const response = await fetch("/api/todos/" + id, {
+export const deleteTodoApi = async (id: string, uid: string): Promise<void> => {
+    const response = await fetch(`/api/todos/${id}?uid=${uid}`, {
         method: "DELETE"
     }) 
     const result:TodoApiResponse<null> = await response.json()
@@ -39,11 +39,11 @@ export const deleteTodoApi = async (id: string): Promise<void> => {
     }
 }
 
-export const updateTitleApi = async (id: string, newTitle: string): Promise<void> => {
-    const response = await fetch("/api/todos/" + id, {
+export const updateTitleApi = async (id: string, newTitle: string,uid: string): Promise<void> => {
+    const response = await fetch(`/api/todos/${id}?uid=${uid}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newTitle })
+        body: JSON.stringify({ title: newTitle, uid })
     });
     const result:TodoApiResponse<null> = await response.json();
 
@@ -55,11 +55,11 @@ export const updateTitleApi = async (id: string, newTitle: string): Promise<void
 }
 
 
-export const toggleCompletedApi = async(id :string, checked: boolean): Promise<void> => {
-    const response = await fetch("/api/todos/" + id, {
+export const toggleCompletedApi = async(id :string, checked: boolean, uid: string): Promise<void> => {
+    const response = await fetch(`/api/todos/${id}?uid=${uid}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: checked })
+        body: JSON.stringify({ completed: checked, uid })
     });
     const result:TodoApiResponse<null> = await response.json();
 

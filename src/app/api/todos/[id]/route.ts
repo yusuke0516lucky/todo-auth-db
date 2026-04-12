@@ -12,15 +12,30 @@ function hasStringCode(e: unknown): e is { code: string } {
 }
 
 export async function DELETE(
-    _request: Request,
-    { params }: { params: Promise<{ id: string }> } //第二引数のcontext
+    request: Request,
+    { params }: { params: Promise<{ id: string, }> } //第二引数のcontext
 ) {
     //params.idの中に、URLの[id]の部分が入ってくる
     try {
         const { id } = await params
+        const { searchParams } = new URL(request.url)
+        const uid = searchParams.get("uid")
+        
+        if(!uid) {
+            return Response.json({ok: false, message: "uid is required"}, { status: 400 })
+        }
         if (id.trim().length === 0) {
             return Response.json({ ok: false, message: "Data error" }, { status: 400 })
         }  
+        const todo = await prisma.todo.findFirst({
+            where: {
+                id,
+                userId:uid
+            }
+        })
+        if (!todo) {
+            return Response.json({ ok: false, message: "Not authorized" }, { status: 404 })
+        }
         await prisma.todo.delete({where: {id}})
         return Response.json({ ok: true }, { status: 200 })
     } catch(error) {
@@ -43,6 +58,12 @@ export async function PATCH(
 ) {
     try {
         const { id } = await params
+        const { searchParams } = new URL(request.url)
+        const uid = searchParams.get("uid")
+
+        if(!uid) {
+            return Response.json({ ok: false, message: "uid is required" }, { status: 400 })
+        }
         if (id.trim().length === 0) {
             return Response.json({ ok: false, message: "Invalid id" }, { status: 400 })
         }
@@ -57,6 +78,15 @@ export async function PATCH(
         }
         if (updatedTodo.data.title !== undefined) {
             data.title = updatedTodo.data.title; //Todo名
+        }
+        const todo = await prisma.todo.findFirst({
+            where: {
+                id,
+                userId:uid
+            }
+        })
+        if (!todo) {
+            return Response.json({ ok: false, message: "Not authorized" }, { status: 404 })
         }
         const updatedData = await prisma.todo.update({ where: { id }, data })
         return Response.json({ ok: true, data: updatedData }, { status: 200 })
