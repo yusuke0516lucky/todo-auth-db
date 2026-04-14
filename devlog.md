@@ -387,3 +387,21 @@
 ### Next
 
 - エラーハンドリングの整理(API/UI/認証の責務分離)
+
+## 2026-04-15
+
+### Output
+
+- エラーハンドリングの整理
+  ・authError/validationError/todoErrorに分離
+
+- READMEの整備
+
+### Key learning
+
+- 表示場所とクリアのタイミングまで含めた設計
+  ・新しい操作を始める前に、関係あるエラーやsuccessをクリアする
+
+### Next
+
+- Firebase App Hostingでデプロイ
