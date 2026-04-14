@@ -30,7 +30,6 @@ export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
-  const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null); //2重送信防止用(通信中のTodo)State
   const [editingId, setEditingId] = useState<string | null>(null); //編集中State
   const [editTitle, setEditTitle] = useState<string>(""); //編集中の値
@@ -38,6 +37,9 @@ export default function Home() {
   const [searchKeyword, setSearchKeyword] = useState<string>(""); //検索用state
   const [sortOrder, setSortOrder] = useState<SortStatus>("asc"); //ソート用state(順方向/逆方向)
   const [success, setSuccess] = useState(""); //成功時コメント用state
+  const [validationError, setValidationError] = useState(""); //バリデーションエラー用state
+  const [authError, setAuthError] = useState(""); //認証エラー用state
+  const [todoError, setTodoError] = useState(""); //Todo処理用エラー
 
   //認証用state
   const [user, setUser] = useState<User | null>(null); //ログイン済みかどうかのstate
@@ -53,29 +55,31 @@ export default function Home() {
   }, []);
 
   const handleGoogleLogin = async () => {
+    setAuthError("");
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error("Googleログイン失敗：", error);
-      setError("Googleログインに失敗しました");
+      setAuthError("Googleログインに失敗しました");
     }
   };
 
   const handleLogout = async () => {
+    setAuthError("");
     try {
       await signOut(auth);
     } catch (error) {
       console.error("ログアウト失敗：", error);
-      setError("ログアウトに失敗しました");
+      setAuthError("ログアウトに失敗しました");
     }
   };
 
   //エラーメソッド
   const handleError = (error: unknown, fallbackMessage: string) => {
     if (error instanceof Error) {
-      setError(error.message);
+      setTodoError(error.message);
     } else {
-      setError(fallbackMessage);
+      setTodoError(fallbackMessage);
     }
   };
 
@@ -100,7 +104,7 @@ export default function Home() {
     try {
       const response = await loadTodoApi(uid);
       setTodos(response);
-      setError("");
+      setTodoError("");
     } catch (error) {
       handleError(error, "Todo取得失敗");
     } finally {
@@ -111,16 +115,17 @@ export default function Home() {
   //addTodo()を作成する（POST）
   const addTodo = async () => {
     setSuccess("");
-    setError("");
+    setTodoError("");
+    setValidationError("");
     if (!user || !user.email) {
       return;
     }
     try {
       if (title.trim().length === 0) {
-        setError("文字を入力してください");
+        setValidationError("文字を入力してください");
         return;
       } else if (title.trim().length > TODOS_MAX_LENGTH) {
-        setError("30文字以内で入力してください");
+        setValidationError("30文字以内で入力してください");
         return;
       }
       await addTodoApi(title, user.uid, user.email);
@@ -153,7 +158,7 @@ export default function Home() {
   //削除用関数を作成する
   const deleteTodo = async (id: string) => {
     setSuccess("");
-    setError(""); //エラーをクリアする
+    setTodoError(""); //エラーをクリアする
     if (!user) {
       return;
     }
@@ -169,7 +174,7 @@ export default function Home() {
   //Todo完了・未完了関数
   const toggleCompleted = async (id: string, checked: boolean) => {
     setSuccess("");
-    setError("");
+    setTodoError("");
     if (!user) {
       return;
     }
@@ -189,7 +194,8 @@ export default function Home() {
   //タイトル更新関数
   const updateTitle = async (id: string, newTitle: string) => {
     setSuccess("");
-    setError("");
+    setTodoError("");
+    setValidationError("");
     if (!user) {
       return;
     }
@@ -197,10 +203,10 @@ export default function Home() {
 
     try {
       if (newTitle.trim().length === 0) {
-        setError("文字を入力してください");
+        setValidationError("文字を入力してください");
         return;
       } else if (newTitle.trim().length > TODOS_MAX_LENGTH) {
-        setError("30文字以内で入力してください");
+        setValidationError("30文字以内で入力してください");
         return;
       }
       await updateTitleApi(id, newTitle, user.uid);
@@ -231,9 +237,9 @@ export default function Home() {
   if (!user) {
     return (
       <div>
-        {error && (
+        {authError && (
           <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">
-            {`⚠️ ${error}`}
+            {`⚠️ ${authError}`}
           </p>
         )}
         <div>
@@ -372,10 +378,15 @@ export default function Home() {
           !isEditing && title.trim().length > TODOS_MAX_LENGTH
         }
       />
-
-      {error ? (
+      {validationError && (
         <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">
-          {`⚠️ ${error}`}
+          {`⚠️ ${validationError}`}
+        </p>
+      )}
+
+      {todoError ? (
+        <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-medium text-red-700">
+          {`⚠️ ${todoError}`}
         </p>
       ) : (
         success && (
